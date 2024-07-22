@@ -1,4 +1,4 @@
-# VERSION = 1.7
+# VERSION = 1.8
 # Edited by Fend1b0ber
 # Edited name disk as "{#DISKNAME}`":`""+$dtn+" "+$vn+" ("+$disk_name+")`"
 $smartctl = "$Env:Programfiles\smartmontools\bin\smartctl.exe"
@@ -69,18 +69,20 @@ foreach ($smart_scanresult in $smart_scanresults)
             $vn=$vn.trim()
         } else
 		{
-		$vn = $line | select-string "Model Number:"
-        $vn = $vn -ireplace "Model Number:"	
-		$vn=$vn.trim()
-		#write-host "VN is:"$vn
+		$vn = $line | select-string "Device Model:"
+        $vn = $vn -ireplace "Device Model:"	
+		#$vn=$vn.trim()
+		
 		}
-		#$vn = ($vn.Substring(0,11))
+		$vn=$vn.TrimStart("")
+		#write-host "VN string is:"$vn
+		$vn = $vn.replace("`t",",")
 		#$vn = $vn.Split("") | select -first 1
 		$vn = $vn -Split(" ") | select -first 1		
 		#$vn = $vn.Split("")
 		#$vn = "$vn"[11]
-	
-        
+        #write-host "VN is:"$vn
+		
 		# Device Model
         $model = [string] ""
         $model= $line | select-string "Device Model:"
