@@ -1,4 +1,6 @@
-# VERSION = 1.5
+# VERSION = 1.7
+# Edited by Fend1b0ber
+# Edited name disk as "{#DISKNAME}`":`""+$dtn+" "+$vn+" ("+$disk_name+")`"
 $smartctl = "$Env:Programfiles\smartmontools\bin\smartctl.exe"
 
 if ((Get-Command $smartctl -ErrorAction SilentlyContinue) -eq $null)
@@ -9,9 +11,14 @@ if ((Get-Command $smartctl -ErrorAction SilentlyContinue) -eq $null)
 
 
 $idx = 0
+$dtn = [string] ""
 $global_serials
-$smart_scanresults = & $smartctl "--scan-open"
-$smart_scanresults += & $smartctl "--scan-open" "-dnvme"
+$smart_scanresults = & $smartctl "--scan-open" | where {$_ -match "/dev/"}
+#$smart_scanresults = & $smartctl "--scan-open" | where {$_ -match "/dev/sd"}
+#$smart_scanresults = & $smartctl "--scan-open" | where {$_ -match "/dev/sdc"}
+#$smart_scanresults = & $smartctl "--scan-open" | where {$_ -match "/dev/csmi"}
+#$smart_scanresults = & $smartctl "--scan-open"
+#$smart_scanresults += & $smartctl "--scan-open" "-dnvme"
 
 $json = ""
 
@@ -52,8 +59,29 @@ foreach ($smart_scanresult in $smart_scanresults)
         # Device sn
         $sn = $line | select-string "serial number:"
         $sn = $sn -ireplace "serial number:"
-
-        # Device Model
+		
+		# Device Vendor name
+		$vn = [string] ""
+        $vn = $line | select-string "Model Family:"
+        $vn = $vn -ireplace "Model Family:"
+		if ($vn)
+        {
+            $vn=$vn.trim()
+        } else
+		{
+		$vn = $line | select-string "Model Number:"
+        $vn = $vn -ireplace "Model Number:"	
+		$vn=$vn.trim()
+		#write-host "VN is:"$vn
+		}
+		#$vn = ($vn.Substring(0,11))
+		#$vn = $vn.Split("") | select -first 1
+		$vn = $vn -Split(" ") | select -first 1		
+		#$vn = $vn.Split("")
+		#$vn = "$vn"[11]
+	
+        
+		# Device Model
         $model = [string] ""
         $model= $line | select-string "Device Model:"
         $model=$model -replace "Device Model:"
@@ -121,7 +149,14 @@ foreach ($smart_scanresult in $smart_scanresults)
                 $disk_type = "1"
             }
         }
-
+		#$
+		if ($disk_type -eq 0) {
+		$dtn = "HDD"
+		}
+		elseif ($disk_type -eq 1) {
+		$dtn = "SSD"
+		}
+		
         if ($sn) {
             $disk_sn=$sn.trim()
     
@@ -144,11 +179,11 @@ foreach ($smart_scanresult in $smart_scanresults)
         {
             $json +=  ",`n"
         }
-    
+#		$disk_name = $vn
         $json += "`t {`n " +
                 "`t`t`"{#DISKSN}`":`""+$disk_sn+"`""+ ",`n" +
                 "`t`t`"{#DISKMODEL}`":`""+$disk_model+"`""+ ",`n" +
-                "`t`t`"{#DISKNAME}`":`""+$disk_name+"`""+ ",`n" +
+                "`t`t`"{#DISKNAME}`":`""+$dtn+" "+$vn+" ("+$disk_name+")`""+ ",`n" +
                 "`t`t`"{#DISKCMD}`":`""+$disk_name+" "+$disk_args+"`"" +",`n" +
                 "`t`t`"{#SMART_ENABLED}`":`""+$smart_enabled+"`"" +",`n" +
                 "`t`t`"{#DISKTYPE}`":`""+$disk_type+"`"" +"`n" +
@@ -159,3 +194,5 @@ foreach ($smart_scanresult in $smart_scanresults)
 write-host $json
 write-host " ]"
 write-host "}"
+#write-host $vn.GetType()
+#write-host $vn
