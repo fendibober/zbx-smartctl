@@ -1,6 +1,7 @@
 # VERSION = 1.8
 # Edited by Fend1b0ber
-# Edited name disk as "{#DISKNAME}`":`""+$dtn+" "+$vn+" ("+$disk_name+")`"
+# Added create name disk based on Device Model
+#https://github.com/fendibober/zbx-smartctl/edit/master/discovery-scripts/windows/smartctl-disks-discovery.ps1#L2C2-L2C8
 $smartctl = "$Env:Programfiles\smartmontools\bin\smartctl.exe"
 
 if ((Get-Command $smartctl -ErrorAction SilentlyContinue) -eq $null)
@@ -66,7 +67,7 @@ foreach ($smart_scanresult in $smart_scanresults)
         $vn = $vn -ireplace "Model Family:"
 		if ($vn)
         {
-            $vn=$vn.trim()
+            $vn=$vn.TrimStart("")
         } else
 		{
 		$vn = $line | select-string "Device Model:"
@@ -76,7 +77,7 @@ foreach ($smart_scanresult in $smart_scanresults)
 		}
 		$vn=$vn.TrimStart("")
 		#write-host "VN string is:"$vn
-		$vn = $vn.replace("`t",",")
+		#$vn = $vn.replace("`t",",")
 		#$vn = $vn.Split("") | select -first 1
 		$vn = $vn -Split(" ") | select -first 1		
 		#$vn = $vn.Split("")
