@@ -1,6 +1,6 @@
 # VERSION = 1.9
 # Edited by Fend1b0ber
-# Added create name disk based on Device Model
+# Disable "TrimStart" for empty string "Model Family"
 #https://github.com/fendibober/zbx-smartctl/edit/master/discovery-scripts/windows/smartctl-disks-discovery.ps1#L2C2-L2C8
 $smartctl = "$Env:Programfiles\smartmontools\bin\smartctl.exe"
 
