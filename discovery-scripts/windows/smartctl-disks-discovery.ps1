@@ -75,7 +75,7 @@ foreach ($smart_scanresult in $smart_scanresults)
 		#$vn=$vn.trim()
 		
 		}
-		$vn=$vn.TrimStart("")
+		#$vn=$vn.TrimStart("")
 		#write-host "VN string is:"$vn
 		#$vn = $vn.replace("`t",",")
 		#$vn = $vn.Split("") | select -first 1
